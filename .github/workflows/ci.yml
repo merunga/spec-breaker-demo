@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same ref when a new commit is pushed.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Test (Node 24)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      # Static check: strict type-check with no emit. `npm run build` also runs
+      # tsc, but doing it as its own step makes type errors obvious in the log.
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build

@@ -1,0 +1,45 @@
+name: Deploy to Surge
+
+# Production deploy: build the Vite app (root-served) and publish dist/ to the
+# production Surge site. Per-PR preview deploys are done manually with
+# `npm run deploy:preview` (see docs/development_guide.md "Deployment (Surge)").
+
+on:
+  # Automatic deploy when changes land on main (e.g. after a PR merges).
+  push:
+    branches: [main]
+  # Manual deploy on demand.
+  workflow_dispatch:
+
+# Only one production deploy at a time; let an in-progress run finish.
+concurrency:
+  group: surge-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (root-served)
+        run: npm run build
+
+      - name: Deploy to Surge
+        # Requires the SURGE_LOGIN and SURGE_TOKEN repo secrets
+        # (generate a token with `surge token`).
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+        run: npx surge ./dist spec-breaker.surge.sh

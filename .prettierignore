@@ -1,0 +1,18 @@
+# Build output and dependencies
+node_modules
+dist
+coverage
+package-lock.json
+
+# Agent/spec tooling and authored docs are not formatted by this project's
+# Prettier config — they have their own conventions and live outside src/.
+ai-specs
+.claude
+.vscode
+docs
+README.md
+ISSUES.md
+openspec
+AGENTS.md
+GEMINI.md
+codex.md

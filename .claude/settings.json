@@ -1,0 +1,30 @@
+{
+  "model": "claude-sonnet-4-6",
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(/usr/bin/git branch *)",
+      "Bash(git switch *)",
+      "Bash(/usr/bin/git -c core.pager=cat status)",
+      "Bash(/usr/bin/git -c core.pager=cat log --oneline -1)",
+      "Bash(/usr/bin/git -c core.pager=cat status --short)",
+      "Bash(/usr/bin/git -c core.pager=cat log --oneline -3)",
+      "Bash(rtk gh pr create --base main --head feature/001-project-scaffold --title '[001] Project scaffold OpenSpec change + opsx:ff branch creation' --body ' *)",
+      "Bash(npm --version)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/ai-specs/scripts/verify_browser_pass.sh",
+            "if": "Bash(git commit*)"
+          }
+        ]
+      }
+    ]
+  }
+}
